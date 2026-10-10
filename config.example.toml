@@ -1,0 +1,12 @@
+# Copy to config.toml (gitignored) and fill in.
+
+base_url = "https://leia.pw.edu.pl"
+
+# USOS login (the one used on cas.usos.pw.edu.pl). The password is NOT stored here:
+#   macOS:  security add-generic-password -s leia-sync -a <username> -w
+#   other:  export LEIA_PASSWORD=...
+username = ""
+keychain_service = "leia-sync"
+
+# Where semester/course folders are written. Relative paths resolve from this repo.
+data_dir = ".."
