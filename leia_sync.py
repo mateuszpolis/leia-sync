@@ -130,6 +130,16 @@ class Client:
         return out["data"]
 
 
+def file_parts(url):
+    """Local path parts for a pluginfile URL: <ctx>/<component>/<area>/<itemid>/<path>."""
+    parts = [re.sub(r'[\\:*?"<>|]', "_", unquote(p)) for p in urlparse(url).path.split("/pluginfile.php/")[-1].split("/")]
+    rest = parts[3:] or parts[-1:]
+    # The itemid tells same-named files apart (book chapter, forum post); "content" areas put a revision there instead.
+    if len(rest) > 1 and (parts[2] == "content" or rest[0] == "0"):
+        rest = rest[1:]
+    return rest
+
+
 class Mirror:
     """Writes files under the data dir and remembers what it wrote, to report changes and prune leftovers."""
 
@@ -157,9 +167,7 @@ class Mirror:
     def download(self, url, folder):
         """Save a pluginfile into folder, re-downloading only when the server says it changed."""
         url = url.split("#")[0]
-        parts = [unquote(p) for p in urlparse(url).path.split("/pluginfile.php/")[-1].split("/")]
-        # ponytail: keeps sub-folders after <ctx>/<component>/<area>/<rev>; flat names could collide
-        path = folder.joinpath(*[re.sub(r'[\\:*?"<>|]', "_", p) for p in parts[4:] or parts[-1:]])
+        path = folder.joinpath(*file_parts(url))
         if path in self.written:
             return path
         self.written.add(path)
@@ -475,6 +483,9 @@ def selftest():
     assert semester_number("A#2026Z", "", first) == 1 and semester_number("A#2027L", "", first) == 2 and semester_number("A#2027Z", "", first) == 3
     assert semester_number("Informacje i ogłoszenia", "Informacje i ogłoszenia", first) == 1
     assert slug("Zaawansowane bazy danych (2026Z)") == "zaawansowane-bazy-danych-2026z" and slug("Łódź żółć") == "lodz-zolc"
+    assert file_parts("https://x/pluginfile.php/9/mod_resource/content/3/a%20b.pdf") == ["a b.pdf"]
+    assert file_parts("https://x/pluginfile.php/9/mod_book/chapter/12/obraz.png") != file_parts("https://x/pluginfile.php/9/mod_book/chapter/13/obraz.png")
+    assert file_parts("https://x/pluginfile.php/9/mod_assign/intro/0/x.png") == ["x.png"]
     print("selftest ok")
 
 

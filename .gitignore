@@ -4,3 +4,4 @@ __pycache__/
 .DS_Store
 last-run.md
 docs/research/
+runs.log

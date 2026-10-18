@@ -1,5 +1,6 @@
 #!/bin/sh
 # Installs a macOS LaunchAgent that runs the Claude sync task every day.
+# Each report lands in last-run.md and is appended, blank lines dropped, to runs.log.
 # Usage: ./install-schedule.sh [hour] [minute]     (default 07:40)
 #        ./install-schedule.sh remove
 set -eu
@@ -29,7 +30,7 @@ cat > "$plist" <<EOF
   </dict>
   <key>ProgramArguments</key><array>
     <string>/bin/sh</string><string>-c</string>
-    <string>exec > last-run.md 2>&amp;1; claude -p --allowedTools "Bash(uv run leia_sync.py:*)" Read Edit &lt; scheduled-task-prompt.md</string>
+    <string>exec > last-run.md 2>&amp;1; claude -p --allowedTools "Bash(uv run leia_sync.py:*)" Read Edit &lt; scheduled-task-prompt.md; s=\$?; { echo "=== \$(date '+%Y-%m-%d %H:%M') exit \$s ==="; grep -v '^[[:space:]]*\$' last-run.md; } &gt;&gt; runs.log</string>
   </array>
   <key>StartCalendarInterval</key><dict>
     <key>Hour</key><integer>${1:-7}</integer>
@@ -39,5 +40,5 @@ cat > "$plist" <<EOF
 EOF
 
 launchctl bootstrap "gui/$(id -u)" "$plist"
-echo "installed: runs daily at ${1:-7}:${2:-40}, report in $repo/last-run.md"
+echo "installed: runs daily at ${1:-7}:${2:-40}, report in $repo/last-run.md, history in $repo/runs.log"
 echo "run now:   launchctl kickstart gui/$(id -u)/$label"

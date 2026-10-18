@@ -42,7 +42,7 @@ In `cm[]`, `module` is the machine type (`assign`, `quiz`, ...); `modname` is th
 | Whole book on one page | `/mod/book/tool/print/index.php?id=<cmid>` |
 | Finished quiz attempt | `/mod/quiz/review.php?attempt=<id>` |
 | Course grades | `/grade/report/user/index.php?id=<courseid>` (`table.user-grade`) |
-| Files | `/pluginfile.php/<ctx>/<component>/<area>/<rev>/<path>` |
+| Files | `/pluginfile.php/<ctx>/<component>/<area>/<itemid>/<path>` (itemid: revision for `content` areas, chapter/post id elsewhere) |
 | Site announcements | `/?redirect=0`, block `block_infoannounce` |
 
 Main content of any page is `#region-main`.
